@@ -1,13 +1,13 @@
-# Desarrollo de una API REST para gestión de productos
+# Implementación de una API REST con persistencia en H2 y documentación con Swagger
 
-La empresa necesita una API REST que gestione productos con nombre, precio, stock y categoría. Los productos no pueden tener precios negativos ni nombres duplicados. La API debe registrar cada producto y manejar los errores de validación adecuadamente. El dominio es una tienda online que requiere alta disponibilidad y consistencia en la gestión de productos.
+La empresa necesita una API REST que gestione productos en un catálogo. Los productos tienen un nombre, precio y descripción. La API debe soportar la creación, lectura, actualización y eliminación de productos. La persistencia se realizará en una base de datos H2 y la documentación se generará con Swagger. Los productos no pueden tener nombres duplicados y los precios no pueden ser negativos. La API debe manejar adecuadamente los errores y proporcionar una respuesta coherente al cliente.
 
 ## Informacion General
 
 | Campo | Valor |
 |-------|-------|
 | **Tema** | Java Spring Boot REST API |
-| **Nivel** | junior-l2 |
+| **Nivel** | junior-l1 |
 | **Tipo** | practical |
 | **Tiempo estimado** | 8 horas |
 
@@ -38,83 +38,82 @@ La empresa necesita una API REST que gestione productos con nombre, precio, stoc
 
 </details>
 
-### Fase 1: Registro básico de productos
+### Fase 1: Definición del modelo de datos
 
-**Objetivo:** Implementar la funcionalidad mínima para registrar productos con validación de precio y nombre.
-
-**Tiempo estimado:** 3 horas
-
-**Instrucciones:**
-
-- Diseñar y registrar productos con nombre, precio, stock y categoría.
-- Validar que el precio no sea negativo y que el nombre no esté duplicado.
-- Manejar adecuadamente los errores de validación.
-
-**Entregable:** API REST que registra productos con validación básica.
-
-<details>
-<summary>Pistas de conocimiento</summary>
-
-- Considera cómo estructurar la información de los productos.
-- Piensa en cómo manejar los errores de validación de forma amigable para el usuario.
-
-</details>
-
-### Fase 2: Gestión de stock y categoría
-
-**Objetivo:** Extender la API para gestionar el stock y la categoría de los productos.
-
-**Tiempo estimado:** 3 horas
-
-**Instrucciones:**
-
-- Añadir la gestión del stock y la categoría a la API.
-- Asegurar que los productos se registren con la información completa.
-
-**Entregable:** API REST que registra productos con nombre, precio, stock y categoría.
-
-<details>
-<summary>Pistas de conocimiento</summary>
-
-- Piensa en cómo estructurar la información adicional.
-- Considera cómo validar la información del stock y la categoría.
-
-</details>
-
-### Fase 3: Documentación con Swagger
-
-**Objetivo:** Documentar la API utilizando Swagger para facilitar su uso y entendimiento.
+**Objetivo:** Definir el modelo de datos para los productos, asegurando que los nombres no sean duplicados y los precios no sean negativos.
 
 **Tiempo estimado:** 2 horas
 
 **Instrucciones:**
 
-- Documentar la API utilizando Swagger.
-- Asegurar que la documentación sea clara y completa.
+- Identificar los atributos necesarios para un producto.
+- Establecer las restricciones para los nombres y precios de los productos.
 
-**Entregable:** API REST documentada con Swagger.
+**Entregable:** Modelo de datos para productos con restricciones de nombres y precios.
 
 <details>
 <summary>Pistas de conocimiento</summary>
 
-- Considera cómo hacer que la documentación sea amigable para el usuario.
-- Piensa en cómo describir las operaciones y los parámetros de la API.
+- Considera cómo representar los productos en la base de datos.
+- Piensa en cómo validar los nombres y precios de los productos.
+
+</details>
+
+### Fase 2: Implementación de endpoints REST
+
+**Objetivo:** Implementar los endpoints REST para crear, leer, actualizar y eliminar productos.
+
+**Tiempo estimado:** 3 horas
+
+**Instrucciones:**
+
+- Crear los endpoints REST necesarios para gestionar los productos.
+- Asegurar que los endpoints manejen adecuadamente los errores y proporcionen respuestas coherentes al cliente.
+
+**Entregable:** Endpoints REST funcionales para la gestión de productos.
+
+<details>
+<summary>Pistas de conocimiento</summary>
+
+- Considera cómo estructurar los endpoints para que sean intuitivos y fáciles de usar.
+- Piensa en cómo manejar los errores y proporcionar respuestas útiles al cliente.
+
+</details>
+
+### Fase 3: Integración con H2 y documentación con Swagger
+
+**Objetivo:** Integrar la API con una base de datos H2 y documentar los endpoints con Swagger.
+
+**Tiempo estimado:** 3 horas
+
+**Instrucciones:**
+
+- Configurar la integración con una base de datos H2.
+- Generar la documentación de los endpoints con Swagger.
+
+**Entregable:** API REST integrada con H2 y documentada con Swagger.
+
+<details>
+<summary>Pistas de conocimiento</summary>
+
+- Considera cómo configurar la conexión con la base de datos H2.
+- Piensa en cómo generar una documentación clara y útil con Swagger.
 
 </details>
 
 ## Dimensiones Evaluadas
 
-- **queEs**: ¿Qué es un producto en el contexto de esta API y cuáles son sus atributos?
-- **paraQueSirve**: ¿Para qué sirve validar el precio y el nombre de un producto?
-- **comoSeUsa**: ¿Cómo se usa la API para registrar un producto?
-- **erroresComunes**: ¿Cuáles son los errores comunes al registrar un producto y cómo se manejan?
-- **queDecisionesImplica**: ¿Qué decisiones implica la gestión del stock y la categoría de un producto?
+- **queEs**: ¿Qué es un modelo de datos y por qué es importante en una API REST?
+- **paraQueSirve**: ¿Para qué sirven los endpoints REST en una API?
+- **comoSeUsa**: ¿Cómo se integra una API REST con una base de datos y se documenta con Swagger?
+- **erroresComunes**: ¿Cuáles son los errores comunes al implementar una API REST y cómo se pueden evitar?
+- **queDecisionesImplica**: ¿Qué decisiones implica la integración de una API REST con una base de datos y la documentación con Swagger?
 
 ## Criterios de Evaluacion
 
-- Implementación de la funcionalidad mínima para registrar productos con validación de precio y nombre.
-- Extensión de la API para gestionar el stock y la categoría de los productos.
-- Documentación clara y completa de la API utilizando Swagger.
+- Definición del modelo de datos con restricciones de nombres y precios.
+- Implementación de endpoints REST funcionales para la gestión de productos.
+- Integración con una base de datos H2 y documentación con Swagger.
 
 ---
 

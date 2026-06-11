@@ -124,19 +124,18 @@ El participante que recibirá este proyecto los debe encontrar y resolver él mi
 INPUT
 Aquí está la cadena con los archivos:
 // === ARCHIVO: pom.xml ===
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.pragma</groupId>
-    <artifactId>product-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>api</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <name>Product API</name>
-    <description>Product API for managing products</description>
+    <description>Product API</description>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.4.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <properties>
@@ -152,18 +151,14 @@ Aquí está la cadena con los archivos:
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>2.0.3</version>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
         </dependency>
     </dependencies>
     <build>
@@ -176,120 +171,34 @@ Aquí está la cadena con los archivos:
     </build>
 </project>
 
-// === ARCHIVO: src/main/java/com/pragma/api/ProductController.java ===
-package com.pragma.api;
+// === ARCHIVO: src/main/java/com/pragma/api/model/Product.java ===
+package com.pragma.api.model;
 
-import com.pragma.domain.Product;
-import com.pragma.domain.ProductService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@RestController
-@RequestMapping("/products")
-public class ProductController {
-
-    private final ProductService productService;
-
-    @Autowired
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
-
-    @Operation(summary = "Register a new product")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Product registered", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content)
-    })
-    @PostMapping
-    public ResponseEntity<Product> registerProduct(@Valid @RequestBody Product product) {
-        Product registeredProduct = productService.registerProduct(product);
-        return new ResponseEntity<>(registeredProduct, HttpStatus.CREATED);
-    }
-
-    @Operation(summary = "Get all products")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "List of products", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
-    })
-    @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> products = productService.getAllProducts();
-        return new ResponseEntity<>(products, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Get product by ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Product found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-        @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
-    })
-    @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        Product product = productService.getProductById(id);
-        return new ResponseEntity<>(product, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Update product by ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Product updated", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
-        @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
-    })
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product product) {
-        Product updatedProduct = productService.updateProduct(id, product);
-        return new ResponseEntity<>(updatedProduct, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Delete product by ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Product deleted"),
-        @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-}
-
-// === ARCHIVO: src/main/java/com/pragma/domain/Product.java ===
-package com.pragma.domain;
-
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "products")
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name is mandatory")
-    @Column(unique = true)
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     private String name;
 
-    @NotNull(message = "Price is mandatory")
-    @Min(value = 0, message = "Price must be non-negative")
+    @NotNull(message = "El precio es obligatorio")
+    @Min(value = 0, message = "El precio debe ser positivo")
     private Double price;
 
-    @NotNull(message = "Stock is mandatory")
-    @Min(value = 0, message = "Stock must be non-negative")
-    private Integer stock;
-
-    @NotBlank(message = "Category is mandatory")
-    private String category;
+    @Size(max = 500, message = "La descripción debe tener menos de 500 caracteres")
+    private String description;
 
     // Getters and setters
     public Long getId() {
@@ -316,111 +225,189 @@ public class Product {
         this.price = price;
     }
 
-    public Integer getStock() {
-        return stock;
+    public String getDescription() {
+        return description;
     }
 
-    public void setStock(Integer stock) {
-        this.stock = stock;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
 
-// === ARCHIVO: src/main/java/com/pragma/domain/ProductService.java ===
-package com.pragma.domain;
+// === ARCHIVO: src/main/java/com/pragma/api/repository/ProductRepository.java ===
+package com.pragma.api.repository;
 
-import com.pragma.infrastructure.ProductRepository;
+import com.pragma.api.model.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+    boolean existsByName(String name);
+}
+
+// === ARCHIVO: src/main/java/com/pragma/api/service/ProductService.java ===
+package com.pragma.api.service;
+
+import com.pragma.api.model.Product;
+import com.pragma.api.repository.ProductRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProductService {
-
-    private final ProductRepository productRepository;
-
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
-
-    public Product registerProduct(Product product) {
-        if (productRepository.findByName(product.getName()).isPresent()) {
-            throw new RuntimeException("Product name already exists");
-        }
-        return productRepository.save(product);
-    }
+    @Autowired
+    private ProductRepository productRepository;
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+    public Optional<Product> getProductById(Long id) {
+        return productRepository.findById(id);
+    }
+
+    public Product createProduct(Product product) {
+        if (productRepository.existsByName(product.getName())) {
+            throw new RuntimeException("El producto ya existe");
+        }
+        return productRepository.save(product);
     }
 
     public Product updateProduct(Long id, Product product) {
-        Product existingProduct = getProductById(id);
-        existingProduct.setName(product.getName());
-        existingProduct.setPrice(product.getPrice());
-        existingProduct.setStock(product.getStock());
-        existingProduct.setCategory(product.getCategory());
-        return productRepository.save(existingProduct);
+        Optional<Product> existingProduct = productRepository.findById(id);
+        if (existingProduct.isPresent()) {
+            existingProduct.get().setName(product.getName());
+            existingProduct.get().setPrice(product.getPrice());
+            existingProduct.get().setDescription(product.getDescription());
+            return productRepository.save(existingProduct.get());
+        }
+        throw new RuntimeException("Producto no encontrado");
     }
 
     public void deleteProduct(Long id) {
-        Product product = getProductById(id);
-        productRepository.delete(product);
+        Optional<Product> existingProduct = productRepository.findById(id);
+        if (existingProduct.isPresent()) {
+            productRepository.deleteById(id);
+        } else {
+            throw new RuntimeException("Producto no encontrado");
+        }
     }
 }
 
-// === ARCHIVO: src/main/java/com/pragma/infrastructure/ProductRepository.java ===
-package com.pragma.infrastructure;
+// === ARCHIVO: src/main/java/com/pragma/api/controller/ProductController.java ===
+package com.pragma.api.controller;
 
-import com.pragma.domain.Product;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import com.pragma.api.model.Product;
+import com.pragma.api.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Optional;
 
-@Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<Product> findByName(String name);
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+    @Autowired
+    private ProductService productService;
+
+    @GetMapping
+    @Operation(summary = "Obtener todos los productos")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Productos encontrados", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
+    })
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Obtener producto por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Producto encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
+    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+        Optional<Product> product = productService.getProductById(id);
+        return product.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    @Operation(summary = "Crear un nuevo producto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Producto creado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
+            @ApiResponse(responseCode = "400", description = "Datos de producto inválidos")
+    })
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        Product createdProduct = productService.createProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Actualizar un producto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Producto actualizado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class))),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
+        Product updatedProduct = productService.updateProduct(id, product);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Eliminar un producto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Producto eliminado"),
+            @ApiResponse(responseCode = "404", description = "Producto no encontrado")
+    })
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
 }
 
-// === ARCHIVO: src/main/resources/application.properties ===
+// === ARCHIVO: src/main/resources/config/application.properties ===
 spring.datasource.url=jdbc:h2:mem:testdb
 spring.datasource.driverClassName=org.h2.Driver
 spring.datasource.username=sa
 spring.datasource.password=
-spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 spring.h2.console.enabled=true
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
 
-// === ARCHIVO: src/main/resources/db/migration/V1__Initial_Schema.sql ===
-CREATE TABLE products (
+// === ARCHIVO: src/main/resources/data/schema.sql ===
+CREATE TABLE IF NOT EXISTS products (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(100) NOT NULL UNIQUE,
     price DECIMAL(10, 2) NOT NULL,
-    stock INT NOT NULL,
-    category VARCHAR(255) NOT NULL,
-    UNIQUE (name)
+    description VARCHAR(500)
 );
 
-// === ARCHIVO: src/main/resources/openapi.yaml ===
-openapi: 3.0.1
+// === ARCHIVO: src/main/resources/config/openapi.yaml ===
+openapi: 3.0.0
 info:
   title: Product API
-  description: API for managing products
   version: 1.0.0
+  description: API para la gestión de productos
 paths:
-  /products:
+  /api/products:
+    get:
+      summary: Obtener todos los productos
+      responses:
+        '200':
+          description: Productos encontrados
     post:
-      summary: Register a new product
+      summary: Crear un nuevo producto
       requestBody:
         required: true
         content:
@@ -429,52 +416,31 @@ paths:
               $ref: '#/components/schemas/Product'
       responses:
         '201':
-          description: Product registered
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
+          description: Producto creado
         '400':
-          description: Invalid input
+          description: Datos de producto inválidos
+  /api/products/{id}:
     get:
-      summary: Get all products
-      responses:
-        '200':
-          description: List of products
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
-  /products/{id}:
-    get:
-      summary: Get product by ID
+      summary: Obtener producto por ID
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: integer
-            format: int64
       responses:
         '200':
-          description: Product found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
+          description: Producto encontrado
         '404':
-          description: Product not found
+          description: Producto no encontrado
     put:
-      summary: Update product by ID
+      summary: Actualizar un producto
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: integer
-            format: int64
       requestBody:
         required: true
         content:
@@ -483,27 +449,22 @@ paths:
               $ref: '#/components/schemas/Product'
       responses:
         '200':
-          description: Product updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
+          description: Producto actualizado
         '404':
-          description: Product not found
+          description: Producto no encontrado
     delete:
-      summary: Delete product by ID
+      summary: Eliminar un producto
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: integer
-            format: int64
       responses:
         '204':
-          description: Product deleted
+          description: Producto eliminado
         '404':
-          description: Product not found
+          description: Producto no encontrado
 components:
   schemas:
     Product:
@@ -517,10 +478,7 @@ components:
         price:
           type: number
           format: double
-        stock:
-          type: integer
-          format: int32
-        category:
+        description:
           type: string
 
 
